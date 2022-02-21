@@ -28,25 +28,35 @@ usersRoute.get('/users/:uuid', async (request: Request<{ uuid: string }>, respon
 });
 
 
-usersRoute.post('/users', (request: Request, response: Response, next: NextFunction) => {
+usersRoute.post('/users', async (request: Request, response: Response, next: NextFunction) => {
   
   const newUser = request.body;
+
+  const uuid = await userRepository.store(newUser);
   
-  response.status(StatusCodes.CREATED).send(newUser);
+  response.status(StatusCodes.CREATED).send({ msg: 'Recurso criado com sucesso.' , 'uuid': uuid});
 });
 
 
-usersRoute.put('/users/:uuid', (request: Request<{ uuid: string }>, response: Response, next: NextFunction) => {
+usersRoute.put('/users/:uuid', async (request: Request<{ uuid: string }>, response: Response, next: NextFunction) => {
   
   const uuid = request.params.uuid
+
+  const modifyUser = request.body;
+
+  modifyUser.uuid = uuid;
+
+  await userRepository.update(modifyUser);
   
-  response.status(StatusCodes.OK).send({ uuid });
+  response.status(StatusCodes.OK).send({ msg: 'Recurso atualizado com sucesso.' });
 });
 
 
 usersRoute.delete('/users/:uuid', (request: Request<{ uuid: string }>, response: Response, next: NextFunction) => {
   
   const uuid = request.params.uuid;
+
+  userRepository.destroy(uuid);
   
   response.status(StatusCodes.OK).send({ msg: 'Recurso deletado com sucesso.' });
 });
