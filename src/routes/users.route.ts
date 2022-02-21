@@ -32,11 +32,7 @@ usersRoute.get('/users/:uuid', async (request: Request<{ uuid: string }>, respon
   
   } catch (error) {
 
-    if(error instanceof DatabaseError){
-      response.sendStatus(StatusCodes.BAD_REQUEST);
-    }else{
-      response.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
-    }
+   
 
   }
 
