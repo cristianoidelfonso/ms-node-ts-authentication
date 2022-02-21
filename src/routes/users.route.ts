@@ -17,12 +17,16 @@ usersRoute.get('/users', async (request: Request, response: Response, next: Next
   response.status(StatusCodes.OK).send(users);
 });
 
-usersRoute.get('/users/:uuid', (request: Request<{ uuid: string }>, response: Response, next: NextFunction) => {
+
+usersRoute.get('/users/:uuid', async (request: Request<{ uuid: string }>, response: Response, next: NextFunction) => {
   
   const uuid = request.params.uuid;
+
+  const user = await userRepository.findById(uuid);
   
-  response.status(StatusCodes.OK).send({ uuid });
+  response.status(StatusCodes.OK).send({ user });
 });
+
 
 usersRoute.post('/users', (request: Request, response: Response, next: NextFunction) => {
   
@@ -31,12 +35,14 @@ usersRoute.post('/users', (request: Request, response: Response, next: NextFunct
   response.status(StatusCodes.CREATED).send(newUser);
 });
 
+
 usersRoute.put('/users/:uuid', (request: Request<{ uuid: string }>, response: Response, next: NextFunction) => {
   
   const uuid = request.params.uuid
   
   response.status(StatusCodes.OK).send({ uuid });
 });
+
 
 usersRoute.delete('/users/:uuid', (request: Request<{ uuid: string }>, response: Response, next: NextFunction) => {
   
