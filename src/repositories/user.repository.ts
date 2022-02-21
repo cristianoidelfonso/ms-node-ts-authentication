@@ -1,4 +1,5 @@
 import db from '../db';
+import DatabaseError from '../models/errors/database.error.model';
 import User from '../models/user.model';
 class UserRepository {
 
@@ -17,16 +18,23 @@ class UserRepository {
   }
 
   async findById(uuid: string) : Promise<User> {
+    try {
     
-    const query = `SELECT uuid, userName FROM application_users WHERE uuid = $1`;
+      const query = `SELECT uuid, userName FROM application_users WHERE uuid = $1`;
 
-    const values = [uuid];
+      const values = [uuid];
 
-    const { rows } = await db.query<User>(query, values);
+      const { rows } = await db.query<User>(query, values);
 
-    const [ user ] = rows;
+      const [ user ] = rows;
 
-    return user;
+      return user;
+
+    } catch (error) {
+
+      throw new DatabaseError('Error na consulta por ID.', error);
+      
+    }
 
   }
 
