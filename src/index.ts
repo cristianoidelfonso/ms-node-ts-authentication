@@ -1,4 +1,5 @@
 import express , { Request, Response, NextFunction } from 'express';
+import statusRoute from './routes/status.route';
 import usersRoute from './routes/users.route';
 
 const app = express();
@@ -10,12 +11,8 @@ app.use( express.urlencoded( { extended: true} ) );
 
 
 // Configuração das rotas
+app.use(statusRoute);
 app.use(usersRoute);
-
-// Rota de teste de funcionamento
-app.get('/status', ( request: Request, response: Response, next: NextFunction ) => {
-  response.status(200).send({ 'Hello':'world!', 'Funciona': 'Sim', 'Status': '200' });
-});
 
 
 // Inicialização do servidor
