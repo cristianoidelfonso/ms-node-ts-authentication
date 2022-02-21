@@ -14,14 +14,24 @@ usersRoute.get('/users', (request: Request, response: Response, next: NextFuncti
   response.status(StatusCodes.OK).send(users);
 });
 
-usersRoute.get('/users/:uuid', (request: Request<{uuid: string}>, response: Response, next: NextFunction) => {
+usersRoute.get('/users/:uuid', (request: Request<{ uuid: string }>, response: Response, next: NextFunction) => {
   const uuid = request.params.uuid;
-  response.status(StatusCodes.OK).send({uuid});
+  response.status(StatusCodes.OK).send({ uuid });
 });
 
 usersRoute.post('/users', (request: Request, response: Response, next: NextFunction) => {
   const newUser = request.body;
   response.status(StatusCodes.CREATED).send(newUser);
+});
+
+usersRoute.put('/users/:uuid', (request: Request<{ uuid: string }>, response: Response, next: NextFunction) => {
+  const uuid = request.params.uuid
+  response.status(StatusCodes.OK).send({ uuid });
+});
+
+usersRoute.delete('/users/:uuid', (request: Request<{ uuid: string }>, response: Response, next: NextFunction) => {
+  const uuid = request.params.uuid;
+  response.status(StatusCodes.OK).send({ msg: 'Recurso deletado com sucesso.' });
 });
 
 export default usersRoute;
