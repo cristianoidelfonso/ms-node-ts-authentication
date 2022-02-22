@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import ForbiddenError from "../models/errors/forbidden.error.model";
 import JWT from "jsonwebtoken";
-import userRepository from "../repositories/user.repository";
 
-async function bearerAuthenticationMiddleware(request: Request, response: Response, next: NextFunction) {
+async function jwtBearerAuthenticationMiddleware(request: Request, response: Response, next: NextFunction) {
 
   try {
 
@@ -21,24 +20,30 @@ async function bearerAuthenticationMiddleware(request: Request, response: Respon
       throw new ForbiddenError('Type authentication invalid.');
     }
   
-    const tokenPayload = JWT.verify(token, 'my_secret_key');
-    // response.send({'token payload':tokenPayload});
-    
-    if(typeof tokenPayload !== 'object' || !tokenPayload.sub){
+    try {
+      const tokenPayload = JWT.verify(token, 'my_secret_key');
+      // response.send({'token payload':tokenPayload});
+
+      if (typeof tokenPayload !== 'object' || !tokenPayload.sub) {
+        throw new ForbiddenError('Token invalid.');
+      }
+
+      const user = { uuid: tokenPayload.sub, username: tokenPayload.username };
+      // response.send({'user': user});
+
+      request.user = user;
+      // response.send({'user': request.user});
+
+      next();
+      
+    } catch (error) {
       throw new ForbiddenError('Token invalid.');
     }
-
-    const user = { uuid : tokenPayload.sub, username: tokenPayload.username };
-    // response.send({'user': user});
-
-    request.user = user;
-    // response.send({'user': request.user});
-
-    next();
+   
 
   } catch (error) {
     next(error);
   }
 }
 
-export default bearerAuthenticationMiddleware;
+export default jwtBearerAuthenticationMiddleware;
