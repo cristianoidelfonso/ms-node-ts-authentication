@@ -57,7 +57,33 @@ authorizationRoute.post('/token/refresh',
         throw new ForbiddenError('Token invalid.');
       }
 
-      response.send({'tokenType': tokenType, 'token': token});
+      // 3 - Criar novo token para o usuário
+      try {
+        const tokenPayload = JWT.verify(token, 'my_secret_key');
+
+        if (typeof tokenPayload !== 'object' || !tokenPayload.sub) {
+          throw new ForbiddenError('Token invalid.');
+        }
+
+        const user = { uuid: tokenPayload.sub, username: tokenPayload.username };
+
+        const jwtPayload = { username: user.username };
+        const jwtSecretKey = 'my_secret_key';
+        const jwtOptions = { subject: user?.uuid, expiresIn: '10m' };
+
+        const jwt = JWT.sign(jwtPayload, jwtSecretKey, jwtOptions);
+
+        response.status(StatusCodes.OK).json({ jwt: jwt });
+
+        next();
+
+      } catch (error) {
+        throw new ForbiddenError('Token invalid.');
+      }
+
+      // 4 - Invalidar token antigo
+
+      // response.send({'tokenType': tokenType, 'token': token});
      
       next();
     } catch (error) {
