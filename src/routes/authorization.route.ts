@@ -21,9 +21,9 @@ authorizationRoute.post('/token', basicAuthenticationMiddleware,
 
       const jwtPayload = { username: user.username }; 
       const jwtSecretKey = 'my_secret_key';
-      const jwtSubject = { subject: user?.uuid };
+      const jwtOptions = { subject: user?.uuid, expiresIn: '10m'};
 
-      const jwt = JWT.sign(jwtPayload, jwtSecretKey, jwtSubject);
+      const jwt = JWT.sign(jwtPayload, jwtSecretKey, jwtOptions);
 
       response.status(StatusCodes.OK).json({ token: jwt });
 
@@ -37,6 +37,28 @@ authorizationRoute.post('/token/validate', bearerAuthenticationMiddleware,
   async (request: Request, response: Response, next: NextFunction) => {
     try {
       response.status(StatusCodes.OK).send({'msg': 'Token JWT valid.'})
+      next();
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+authorizationRoute.post('/token/refresh',
+  async (request: Request, response: Response, next: NextFunction) => {
+    try {
+      // 1 - Obter um token válido
+      const tokenContent = request.body.token || request.params.token || request.headers['authorization'];
+      
+      const [tokenType, token] = tokenContent.split(' ');
+
+       // 2 - Verificar se existe um token e se o mesmo é válido
+      if (!token || !JWT.verify(token, 'my_secret_key')){
+        throw new ForbiddenError('Token invalid.');
+      }
+
+      response.send({'tokenType': tokenType, 'token': token});
+     
       next();
     } catch (error) {
       next(error);
