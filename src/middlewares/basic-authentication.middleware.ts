@@ -5,13 +5,14 @@ import userRepository from "../repositories/user.repository";
 async function basicAuthenticationMiddleware(request: Request, response: Response, next: NextFunction) {
 
   try {
-    const authorizationHeaders = request.headers['authorization'];
 
-    if(!authorizationHeaders){
+    const authorizationHeader = request.headers['authorization'];
+
+    if(!authorizationHeader){
       throw new ForbiddenError('Credentials not informed.');
     }
 
-    const [authenticationType, token] = authorizationHeaders.split(' ');
+    const [authenticationType, token] = authorizationHeader.split(' ');
 
     if(authenticationType !== 'Basic' || !token){
       throw new ForbiddenError('Type authentication invalid.');
