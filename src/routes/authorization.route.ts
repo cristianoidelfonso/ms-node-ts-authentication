@@ -3,40 +3,19 @@ import ForbiddenError from '../models/errors/forbidden.error.model';
 import userRepository from '../repositories/user.repository';
 import JWT from 'jsonwebtoken';
 import { StatusCodes } from 'http-status-codes';
+import basicAuthenticationMiddleware from '../middlewares/basic-authentication.middleware';
 
 const authorizationRoute = Router();
 
-authorizationRoute.post('/token', async (request: Request, response: Response, next: NextFunction) => {
+authorizationRoute.post('/token', basicAuthenticationMiddleware, async (request: Request, response: Response, next: NextFunction) => {
   
   try {
 
-    const authorizationHeaders = request.headers['authorization'];
-
-    if(!authorizationHeaders){
-      throw new ForbiddenError('Credentials not informed.');
-    }
-
-    const [authenticationType, token] = authorizationHeaders.split(' ');
-
-    if(authenticationType !== 'Basic' || !token){
-      throw new ForbiddenError('Type authentication invalid.');
-    }
-
-    const tokenContent = Buffer.from(token, 'base64').toString('utf-8');
-
-    const [username, password] = tokenContent.split(':');
-
-    if(!username || !password){
-      throw new ForbiddenError('Unfilled credentials.')
-    }
-
-    const user = await userRepository.findByUsernameAndPassword(username, password);
+    const user = request.user;
 
     if(!user){
-      throw new ForbiddenError('Invalid username and/or password.')
+      throw new ForbiddenError('User not informed.');
     }
-
-    // console.log(user);
 
     const jwtPayload = { username: user.username }; 
     const jwtSecretKey = 'my_secret_key';
